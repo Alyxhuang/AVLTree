@@ -14,6 +14,9 @@ int main() {
     m.insert(1, 1);
     m.insert(2, 2);
     m.insert(3, 3);
+    m.insert(4, 4);
+    m.insert(5, 5);
+    m.insert(6, 6);
     //m.insert(1, -1);
     //m.remove(3);
     m.dfs();

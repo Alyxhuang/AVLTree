@@ -1,7 +1,7 @@
 // AVL.cpp
 template<class T>
 struct Node {
-    Node(T d, Node<T>* f = nullptr, Node<T>* l = nullptr, Node<T>*r = nullptr, unsigned char h = 1):
+    Node(T d, Node<T>* f = nullptr, Node<T>* l = nullptr, Node<T>* r = nullptr, unsigned char h = 1):
         data(d), father(f), left(l), right(r), height(h) {    }
     T data;
     Node<T>* father;
@@ -43,7 +43,8 @@ private:
         b->left = a; a->father = b;
         b->right = c; c->father = b;
         //updateHeight a,b,c
-        updateHeightAbove(a);
+        // updateHeightAbove(a);
+        a->height = avlMax(getHeight(a->left), getHeight(a->right)) + 1;
         updateHeightAbove(c);
         return b;
     }
@@ -108,6 +109,7 @@ private:
         return cur && (cur->left == nullptr) && (cur->right == nullptr);
     }
     NodePointer tallerChild(NodePointer v) {
+        if(!v) return v;
         int ha = getHeight(v->left), hb = getHeight(v->right);
         if(ha > hb) {
             return v->left;
@@ -117,7 +119,7 @@ private:
         return nullptr;
     }
     bool isBalanced(NodePointer v) {
-        return (v == nullptr) || avlAbs(getHeight(v->left) - getHeight(v->right)) < 2;
+        return (v == nullptr) || ( avlAbs(getHeight(v->left) - getHeight(v->right)) < 2 );
     }
     NodePointer getHead() {
         while(head && head->father) {
@@ -140,15 +142,15 @@ private:
         a = b;
         b = t;
     }
-    NodePointer maxNode(NodePointer v) {
-        if(v == nullptr) return nullptr;
+    NodePointer minNode(NodePointer v) {
+        if(!v) return v;
         while(v->left) {
             v = v->left;
         }
         return v;
     }
-    NodePointer minNode(NodePointer v) {
-        if(v == nullptr) return nullptr;
+    NodePointer maxNode(NodePointer v) {
+        if(!v) return v;
         while(v->right) {
             v = v->right;
         }
@@ -157,7 +159,7 @@ private:
     void updateHeightAbove(NodePointer g) {
         for(; g; g = g->father) {
             int newH = avlMax(getHeight(g->left), getHeight(g->right)) + 1;
-            //if(newH == g->height) break;
+            if(newH == g->height) break;
             g->height = newH;
         }
     }
@@ -191,11 +193,13 @@ public:
         if(!head) {
             head = insertionNode;
             return head;
-        } else {
+        } else { 
             if(g->Key > insertionNode->Key) {
                 g->left = insertionNode;
+                insertionNode->father = g;
             } else {
                 g->right = insertionNode;
+                insertionNode->father = g;
             }
         }
         updateHeightAbove(insertionNode);
@@ -224,7 +228,7 @@ public:
     }
     //需要重载小于号<
     NodePointer find(T key, NodePointer& hot) {
-        NodePointer cur = head;
+        NodePointer cur = getHead();
         while(cur && cur->Key != key) {
             if(cur->Key > key) {
                 hot = cur;
@@ -238,7 +242,7 @@ public:
     }
     //需要重载小于号<
     NodePointer find(T key) {
-        NodePointer cur = head;
+        NodePointer cur = getHead();
         while(cur && cur->Key != key) {
             if(cur->Key > key) {
                 cur = cur->left;
@@ -262,8 +266,11 @@ public:
         hot = rhs->father;
         if(isLeftChild(rhs)) {
             hot->left = nullptr;
-        }else{
+        } else if(isRightChild(rhs)){
             hot->right = nullptr;
+        } else {
+            getHead();
+            head = nullptr;
         }
         return rhs;
     }
