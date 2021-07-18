@@ -1,16 +1,17 @@
 // AVL.cpp
-#define mmmDEBUG
-#ifdef mmmDEBUG
-#include<stdio.h> 
-#define PRINT_DBG(...) {fprintf(stderr, "%s %s [%d]:", __FILE__, __FUNCTION__, __LINE__);fprintf(stderr, __VA_ARGS__);fprintf(stderr, "\n");} 
+#define avlDEBUG
+#ifdef avlDEBUG
+    #include<stdio.h> 
+    #define PRINT_DBG(...) {fprintf(stderr, "%s %s [%d]:", __FILE__, __FUNCTION__, __LINE__);fprintf(stderr, __VA_ARGS__);fprintf(stderr, "\n");} 
 #else
-#define DEBUG_LOG(module) do{}while(0);
+    #define DEBUG_LOG(module) do{}while(0);
 #endif
+#include<iostream>
 
 template<class T>
 struct Node {
     Node(T d, Node<T>* f = nullptr, Node<T>* l = nullptr, Node<T>* r = nullptr, unsigned char h = 1):
-        data(d), father(f), left(l), right(r), height(h) {    }
+        data(d), father(f), left(l), right(r), height(h) {}
     T data;
     Node<T>* father;
     Node<T>* left;
@@ -38,6 +39,8 @@ class map {
     using NodePointer = Node<pair<T, U>>*;
     #define Key data.first
     #define Value data.second
+public:
+    map(): head(nullptr){}
 private:
     NodePointer head;
 private:
@@ -46,12 +49,7 @@ private:
         // 3 + 4 重构 
         PRINT_DBG("----3 + 4 rebuild:")
         PRINT_DBG("a=%d, b=%d, c=%d", a->Key, b->Key, c->Key)
-        // #ifndef BDEBUG
-        // #else
-        // std::cout << "----3 + 4 rebuild:" << std::endl;
-        // std::cout << "a=" << a->Key << ",b=" << b->Key << ",c=" << c->Key << std::endl;
-        // // std::cout << "T0=" << a->Key << ",b=" << b->Key << ",c=" << c->Key << std:endl;
-        // #endif
+
         a->left = T0; if(T0) T0->father = a;
         a->right = T1; if(T1) T1->father = a;
         c->left = T2; if(T2) T2->father = c;
@@ -59,23 +57,13 @@ private:
         b->left = a; a->father = b;
         b->right = c; c->father = b;
         //updateHeight a,b,c
-        updateHeightAbove(a);
-        // a->height = avlMax(getHeight(a->left), getHeight(a->right)) + 1;
+        //updateHeightAbove(a);
+        a->height = avlMax(getHeight(a->left), getHeight(a->right)) + 1;
         updateHeightAbove(c);
-        PRINT_DBG("travel mid point:")
-        // #ifndef BDEBUG
-        // #else
-        // std::cout << "--------travel mid point:" << std::endl;
-        // #endif
-        dfsHelper(b);
         return b;
     }
     NodePointer reBalance(NodePointer v) {
         PRINT_DBG("reBalance")
-        // #ifndef BDEBUG
-        // #else
-        // std::cout << "----reBalance" << std::endl;
-        // #endif
         NodePointer p = v->father;
         NodePointer g = p->father;
         if(isLeftChild(p)) {
@@ -194,22 +182,7 @@ private:
             g->height = newH;
         }
     }
-    
-public:
-    void dfs() {
-        PRINT_DBG("dfs()")
-        // #ifndef BDEBUG
-        // #else
-        // std::cout << "----dfs() " << std::endl;
-        // #endif
-        dfsHelper(getHead());
-    }
     void dfsHelper(NodePointer x) {
-        
-        // #ifndef BDEBUG
-        // #else
-        // std::cout << "----dfsHelper()" << std::endl;
-        // #endif
         if(!x) return;
         PRINT_DBG("dfsHelper()")
 
@@ -226,79 +199,61 @@ public:
         dfsHelper(x->left);
         dfsHelper(x->right);
     }
+public:
+    //递归dfs遍历打印AVL树
+    void dfs() {
+        PRINT_DBG("dfs()")
+        dfsHelper(getHead());
+    }
+
+    //插入节点，并将其位置返回
     NodePointer insert(T key, U value) {
-        // DEBUG_LOG("insert key:%d")
         PRINT_DBG("insert()...")
         PRINT_DBG("key:%d, value:%d", key, value)
-        // #ifndef BDEBUG
-        // #else
-        // std::cout << "----insert()..." << std::endl;
-        // std::cout << key << ":" << value << std::endl;
-        // #endif
+
         NodePointer g = nullptr;
         NodePointer v = find(key, g);
+        //找到了该节点，直接修改值并返回即可
         if(v != nullptr) {
             PRINT_DBG("point is existed! Updating ...")
-            // #ifndef BDEBUG
-            // #else
-            // std::cout << "--------point is existed! Updating ..." << std::endl;
-            // #endif
+
             v->Value = value;
             return v;
         }
+        //创建新的节点
         pair<T, U> Ele(key, value);
         NodePointer insertionNode = new Node<pair<T, U>>(Ele);
+        //原本AVL树为空
         if(!head) {
             PRINT_DBG("head is null")
-            // #ifndef BDEBUG
-            // #else
-            // std::cout << "--------head is null" << std::endl;
-            // #endif
             head = insertionNode;
             return head;
         } else { 
+            //原本AVL树不空，则根据大小选择插入位置（左or右）
             PRINT_DBG("head is exist")
-            // #ifndef BDEBUG
-            // #else
-            // std::cout << "--------head is exist" << std::endl;
-            // #endif
             if(g->Key > insertionNode->Key) {
                 PRINT_DBG("insert to left:%d", g->Key)
-                // #ifndef BDEBUG
-                // #else
-                // std::cout << "------------insert to left:" << g->Key << std::endl;
-                // #endif
+
                 g->left = insertionNode;
                 insertionNode->father = g;
             } else {
                 PRINT_DBG("insert to right:%d", g->Key)
-                // #ifndef BDEBUG
-                // #else
-                // std::cout << "------------insert to right:" << g->Key << std::endl;
-                // #endif
+
                 g->right = insertionNode;
                 insertionNode->father = g;
             }
         }
+        //更新高度
         PRINT_DBG("updateHeightAbove")
-        // #ifndef BDEBUG
-        // #else
-        // std::cout << "--------updateHeightAbove" << std::endl;
-        // #endif
         updateHeightAbove(insertionNode);
-        dfs();
-        // for(g = insertionNode->father; g; g = g->father) {
-        //     if(!isBalanced(g)) {
-        //         g = reBalance(tallerChild(tallerChild(g)));
-        //     }
-        //     updateHeightAbove(g);
-        // } 
+        //重平衡
         int t = 0;
         for(g = insertionNode->father; g; g = g->father) {
             ++t;
             if(!isBalanced(g)) {
                 g = reBalance(tallerChild(tallerChild(g)));
             } else if(t > 2) {
+                //超过三代都不发生高度改变，说明无需再向上迭代
                 updateHeightAbove(g);
                 break;
             }
@@ -306,30 +261,32 @@ public:
         }   
         return insertionNode;
     }
+
+    //删除键为key的节点，返回是否删除成功
     bool remove(T key) {
         NodePointer g = nullptr;
         NodePointer v = find(key);
         PRINT_DBG("remove:%d", key)
-        // #ifndef BDEBUG
-        // #else
-        // std::cout << "remove:" << key << std::endl;
-        // #endif
+        //未找到，直接返回false
         if(v == nullptr) {
             return false;
         }
-        //前面find已经更新过head
+        //前面find已经更新过head，直接检查是否只有head一个节点（即删除head）
         if(!head->left && !head->right) {
             head = nullptr;
             return true;
         }
+        //删除节点，更新高度
         removeNode(v, g);
         updateHeightAbove(g);
+        //重平衡
         int t = 0;
         for(; g; g = g->father) {
             ++t;
             if(!isBalanced(g)) {
                 g = reBalance(tallerChild(tallerChild(g)));
             } else if(t > 2) {
+                //超过三代都不发生高度改变，说明无需再向上迭代
                 updateHeightAbove(g);
                 break;
             }
@@ -337,32 +294,42 @@ public:
         }   
         return true;
     }
+
+    //寻找键为key的节点，并将hot设置为最后找到位置的父亲或者跟丢的位置
     //需要重载小于号<
     NodePointer find(T key, NodePointer& hot) {
         NodePointer cur = getHead();
-        while(cur && cur->Key != key) {
+        while(cur) {
             if(cur->Key > key) {
                 hot = cur;
                 cur = cur->left;
-            } else {
+            } else if(cur->Key < key) {
                 hot = cur;
                 cur = cur->right;
+            } else {
+                break;
             }
         }
         return cur;
     }
+
+    //寻找键为key的节点
     //需要重载小于号<
     NodePointer find(T key) {
         NodePointer cur = getHead();
-        while(cur && cur->Key != key) {
-            if(cur->Key > key) {
+        while(cur) {
+            if(key < cur->Key) {
                 cur = cur->left;
-            } else {
+            } else if(cur->Key < key) {
                 cur = cur->right;
+            } else {
+                break;
             }
         }
         return cur;
     }
+
+    //删除节点x，并将hot节点置为最后删除位置的父亲
     NodePointer removeNode(NodePointer x, NodePointer& hot) {
         NodePointer rhs = x;
         //寻找可交换的边缘节点
@@ -376,7 +343,7 @@ public:
             avlSwap(x->Key, rhs->Key);
             avlSwap(x->Value, rhs->Value);
         }
-        //在另外一侧，至多有一个节点，交换位置
+        //在另外一侧，至多有一个节点，若该节点存在，交换位置
         if(rhs->left) {
             avlSwap(rhs->left->Key, rhs->Key);
             avlSwap(rhs->left->Value, rhs->Value);
@@ -387,6 +354,7 @@ public:
             rhs = rhs->right;
         }
         //现在，rhs已经没有后代节点了
+        //将hot节点置为最后删除位置的父亲然后将其删除并返回
         hot = rhs->father;
         if(isLeftChild(rhs)) {
             hot->left = nullptr;
