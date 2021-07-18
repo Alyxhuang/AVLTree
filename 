@@ -1,0 +1,8 @@
+[33md1504a5[m[33m ([m[1;36mHEAD -> [m[1;32molddebug[m[33m, [m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m HEAD@{0}: checkout: moving from main to olddebug
+[33md1504a5[m[33m ([m[1;36mHEAD -> [m[1;32molddebug[m[33m, [m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m HEAD@{1}: commit: 修复增删bug，简化、统一debug输出方式
+[33m49a1699[m HEAD@{2}: commit: 初步修改，仍有部分bug
+[33m28e2e6d[m HEAD@{3}: commit: 加入 gitignore
+[33m1cdcd46[m HEAD@{4}: reset: moving to 1cdcd46
+[33m1cdcd46[m HEAD@{5}: reset: moving to 1cdcd46
+[33m1cdcd46[m HEAD@{6}: Branch: renamed refs/heads/master to refs/heads/main
+[33m1cdcd46[m HEAD@{8}: commit (initial): AVL树函数基本完成

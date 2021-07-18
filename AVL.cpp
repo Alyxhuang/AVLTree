@@ -173,6 +173,7 @@ private:
         a = b;
         b = t;
     }
+    
     NodePointer minNode(NodePointer v) {
         if(!v) return v;
         while(v->left) {
