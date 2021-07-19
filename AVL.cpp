@@ -4,7 +4,7 @@
     #include<stdio.h> 
     #define PRINT_DBG(...) {fprintf(stderr, "%s %s [%d]:", __FILE__, __FUNCTION__, __LINE__);fprintf(stderr, __VA_ARGS__);fprintf(stderr, "\n");} 
 #else
-    #define DEBUG_LOG(module) do{}while(0);
+    #define PRINT_DBG(...) do{}while(0);
 #endif
 #include<iostream>
 
