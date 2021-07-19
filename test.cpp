@@ -26,5 +26,6 @@ int main() {
     dp.pop_back();
     dp.pop_back();
     dp.pop_back();
+    dp[0];
     return 0;
 }

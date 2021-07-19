@@ -1,12 +1,12 @@
 // AVL.cpp
-#define avlDEBUG
-#ifdef avlDEBUG
-    #include<stdio.h> 
-    #define PRINT_DBG(...) {fprintf(stderr, "%s %s [%d]:", __FILE__, __FUNCTION__, __LINE__);fprintf(stderr, __VA_ARGS__);fprintf(stderr, "\n");} 
-#else
-    #define PRINT_DBG(...) do{}while(0);
-#endif
+#pragma once
+
 #include<iostream>
+#include <string.h>
+#include "error.h"
+#define DEBUG
+#include "log.h"
+
 
 template<class T>
 struct Node {

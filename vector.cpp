@@ -1,12 +1,11 @@
+//vector.cpp
 #pragma once
-#include<string.h>
-#define vectorDEBUG
-#ifdef vectorDEBUG
-    #include<stdio.h> 
-    #define PRINT_DBG(...) {fprintf(stderr, "%s %s [%d]:", __FILE__, __FUNCTION__, __LINE__);fprintf(stderr, __VA_ARGS__);fprintf(stderr, "\n");} 
-#else
-    #define PRINT_DBG(...) do{}while(0);
-#endif
+
+#include <string.h>
+#include "error.h"
+#define DEBUG
+#include "log.h"
+
 template<class T>
 class vector {
     typedef unsigned uint32;
@@ -40,6 +39,13 @@ public:
     }
     T* getData() {
         return data;
+    }
+    T& operator[](uint32 i) {
+        if(i >= size || i < 0) {
+            ERROR("Out of the boundary")
+            throw("Out of the boundary");
+        }
+        return data[i];
     }
     uint32 push_back(T t) {
         expand();
