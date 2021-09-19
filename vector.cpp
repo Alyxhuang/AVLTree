@@ -4,8 +4,25 @@
 #include <string.h>
 #include "error.h"
 #define DEBUG
-#include "log.h"
+#include "debug.h"
+#include "iterator.h"
 
+template<class T>
+class vectorIterator: public iteratorBase<T> {
+    T* pointer;
+public:
+    vectorIterator(T* p = nullptr): pointer(p){}
+    iteratorBase<T>& operator++(){
+        p++;
+        return this;
+    }
+    iteratorBase<T>& operator++(int) {
+        iteratorBase<T>* ret = new(this);
+        return this;
+    }
+    bool hasNext() = 0;
+    bool operator!=() = 0;
+};
 template<class T>
 class vector {
     typedef unsigned uint32;
@@ -26,38 +43,6 @@ private:
         for(int i = 0; i < fromSize; ++ i) {
             to[i] = from[i];
         }
-    }
-    // void finalize(T *fData) {
-    //     delete
-    // }
-public:
-    uint32 getSize() {
-        return size;
-    }
-    uint32 getCapacity() {
-        return capacity;
-    }
-    T* getData() {
-        return data;
-    }
-    T& operator[](uint32 i) {
-        if(i >= size || i < 0) {
-            ERROR("Out of the boundary")
-            throw("Out of the boundary");
-        }
-        return data[i];
-    }
-    uint32 push_back(T t) {
-        expand();
-        data[size] = t;
-        ++size;
-    }
-    T pop_back() {
-        if(size == 0) return T();
-        T r = data[size - 1];
-        size -= 1;
-        shrink();
-        return r;
     }
     //扩容
     uint32 expand() {
@@ -82,7 +67,7 @@ public:
         if(capacity <= DEFAULT_CAPACITY || size >= LOWER_BOUND * capacity) {
             return capacity;
         }
-        PRINT_DBG("limit is %f, going to expand...", LOWER_BOUND * capacity)
+        PRINT_DBG("limit is %f, going to shrink...", LOWER_BOUND * capacity)
         int newCapacity = capacity * SHRINK_BASE;
         T* newData = new T[newCapacity];
         memset(newData, 0, sizeof(T) * newCapacity);
@@ -93,6 +78,42 @@ public:
         data = newData;
         return capacity;
     }
+public:
+    begin() {
+
+    }
+    uint32 getSize() {
+        return size;
+    }
+    uint32 getCapacity() {
+        return capacity;
+    }
+    T* getData() {
+        return data;
+    }
+    //下标访问
+    T& operator[](uint32 i) {
+        if(i >= size || i < 0) {
+            ERROR("Out of the boundary")
+            throw("Out of the boundary");
+        }
+        return data[i];
+    }
+    //尾插入
+    uint32 push_back(T t) {
+        expand();
+        data[size] = t;
+        ++size;
+    }
+    //尾删除
+    T pop_back() {
+        if(size == 0) return T();
+        T r = data[size - 1];
+        size -= 1;
+        shrink();
+        return r;
+    }
+
     //遍历打印
     void for_each() {
         for(int i = 0; i < size; ++ i) {

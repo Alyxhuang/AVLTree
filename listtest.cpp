@@ -1,7 +1,7 @@
 #include <iostream>
 //using namespace std;
 //#define NOT_PAIR_ALIAS
-#include "vector.cpp"
+#include "list.cpp"
 
 int main() {
     vector<int> dp;
@@ -23,9 +23,10 @@ int main() {
     dp.push_back(1);
     dp.push_back(1);
     dp.push_back(1);
+    fprintf(stdout, "dp[0]=%d\n", dp[0]);
     dp.pop_back();
     dp.pop_back();
     dp.pop_back();
-    dp[0];
+    
     return 0;
 }

@@ -1,12 +1,11 @@
 // AVL.cpp
 #pragma once
 
-#include<iostream>
+#include <iostream>
 #include <string.h>
 #include "error.h"
 #define DEBUG
-#include "log.h"
-
+#include "debug.h"
 
 template<class T>
 struct Node {

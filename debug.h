@@ -1,4 +1,4 @@
-//log.h
+//bedug.h
 #ifdef DEBUG
 #define PRINT_DBG(...)                                                    \
     {                                                                     \
@@ -7,5 +7,5 @@
         fprintf(stderr, "\n");                                            \
     }
 #else
-    #define PRINT_DBG(...) {};
+    #define PRINT_DBG(...)
 #endif
