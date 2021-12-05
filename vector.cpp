@@ -1,124 +1,126 @@
-//vector.cpp
+// vector.cpp
 #pragma once
 
 #include <string.h>
+#include <cstdint>
 #include "error.h"
 #define DEBUG
 #include "debug.h"
 #include "iterator.h"
 
-template<class T>
-class vectorIterator: public iteratorBase<T> {
-    T* pointer;
-public:
-    vectorIterator(T* p = nullptr): pointer(p){}
-    iteratorBase<T>& operator++(){
-        p++;
-        return this;
-    }
-    iteratorBase<T>& operator++(int) {
-        iteratorBase<T>* ret = new(this);
-        return this;
-    }
-    bool hasNext() = 0;
-    bool operator!=() = 0;
+namespace alyx {
+template <class T>
+class vectorIterator {
+  T* pointer;
+  bool in_asc;
+
+ public:
+  vectorIterator(T* p = nullptr, bool d = true) : pointer(p), in_asc(d) {}
+  vectorIterator& operator++() {
+    in_asc ? (pointer++) : (pointer--);
+    return *this;
+  }
+  vectorIterator& operator++(int) {
+    vectorIterator* it_helper = new vectorIterator(this->pointer, this->in_asc);
+    in_asc ? (pointer++) : (pointer--);
+    return *it_helper;
+  }
+  bool operator!=(const vectorIterator& rhs) { return this->pointer != rhs.pointer; }
+  bool operator==(const vectorIterator& rhs) { return this->pointer != rhs.pointer; }
+  T operator*() { return *pointer; }
 };
-template<class T>
+template <class T>
 class vector {
-    typedef unsigned uint32;
-    #define DEFAULT_CAPACITY 8
-    #define LOWER_BOUND 0.25
-    #define UPPER_BOUND 0.75
-    #define EXPAND_BASE 1.5
-    #define SHRINK_BASE 0.5
-private:
-    T* data;
-    uint32 size;
-    uint32 capacity;
-public:
-    vector():size(0), capacity(DEFAULT_CAPACITY) {data = new T[DEFAULT_CAPACITY];}
-    ~vector() { }
-private:
-    void copy(T *from, uint32 fromSize, T *to) {
-        for(int i = 0; i < fromSize; ++ i) {
-            to[i] = from[i];
-        }
-    }
-    //扩容
-    uint32 expand() {
-        PRINT_DBG("size:%d,cap:%d", size, capacity)
-        if(size <= UPPER_BOUND * capacity) {
-            return capacity;
-        }
-        PRINT_DBG("limit is %f, going to expand...", UPPER_BOUND * capacity)
-        int newCapacity = capacity * EXPAND_BASE;
-        T* newData = new T[newCapacity];
-        memset(newData, 0, sizeof(T) * newCapacity);
-        copy(data, capacity, newData);
-        delete [] data;
+#define DEFAULT_CAPACITY 8
+#define LOWER_BOUND 0.25
+#define UPPER_BOUND 0.75
+#define EXPAND_BASE 1.5
+#define SHRINK_BASE 0.5
+ private:
+  T* _data;
+  uint32_t _size;
+  uint32_t _capacity;
 
-        capacity = newCapacity;
-        data = newData;
-        return capacity;
-    }
-    //缩容
-    uint32 shrink() {
-        PRINT_DBG("size:%d,cap:%d", size, capacity)
-        if(capacity <= DEFAULT_CAPACITY || size >= LOWER_BOUND * capacity) {
-            return capacity;
-        }
-        PRINT_DBG("limit is %f, going to shrink...", LOWER_BOUND * capacity)
-        int newCapacity = capacity * SHRINK_BASE;
-        T* newData = new T[newCapacity];
-        memset(newData, 0, sizeof(T) * newCapacity);
-        copy(data, capacity, newData);
-        delete [] data;
+ public:
+  vector() : _size(0), _capacity(DEFAULT_CAPACITY) { _data = new T[DEFAULT_CAPACITY]; }
+  ~vector() {}
 
-        capacity = newCapacity;
-        data = newData;
-        return capacity;
+ private:
+  void copy(T* from, uint32_t fromSize, T* to) {
+    for (int i = 0; i < fromSize; ++i) {
+      to[i] = from[i];
     }
-public:
-    begin() {
+  }
+  // 扩容
+  uint32_t expand() {
+    PRINT_DBG("_size:%d,cap:%d", _size, _capacity)
+    if (_size <= UPPER_BOUND * _capacity) {
+      return _capacity;
+    }
+    PRINT_DBG("limit is %f, going to expand...", UPPER_BOUND * _capacity)
+    int newCapacity = _capacity * EXPAND_BASE;
+    T* newData = new T[newCapacity];
+    memset(newData, 0, sizeof(T) * newCapacity);
+    copy(_data, _capacity, newData);
+    delete[] _data;
 
+    _capacity = newCapacity;
+    _data = newData;
+    return _capacity;
+  }
+  // 缩容
+  uint32_t shrink() {
+    PRINT_DBG("_size:%d,cap:%d", _size, _capacity)
+    if (_capacity <= DEFAULT_CAPACITY || _size >= LOWER_BOUND * _capacity) {
+      return _capacity;
     }
-    uint32 getSize() {
-        return size;
-    }
-    uint32 getCapacity() {
-        return capacity;
-    }
-    T* getData() {
-        return data;
-    }
-    //下标访问
-    T& operator[](uint32 i) {
-        if(i >= size || i < 0) {
-            ERROR("Out of the boundary")
-            throw("Out of the boundary");
-        }
-        return data[i];
-    }
-    //尾插入
-    uint32 push_back(T t) {
-        expand();
-        data[size] = t;
-        ++size;
-    }
-    //尾删除
-    T pop_back() {
-        if(size == 0) return T();
-        T r = data[size - 1];
-        size -= 1;
-        shrink();
-        return r;
-    }
+    PRINT_DBG("limit is %f, going to shrink...", LOWER_BOUND * _capacity)
+    int newCapacity = _capacity * SHRINK_BASE;
+    T* newData = new T[newCapacity];
+    memset(newData, 0, sizeof(T) * newCapacity);
+    copy(_data, _capacity, newData);
+    delete[] _data;
 
-    //遍历打印
-    void for_each() {
-        for(int i = 0; i < size; ++ i) {
-            std::cout << data[i] << "\t";
-        }
+    _capacity = newCapacity;
+    _data = newData;
+    return _capacity;
+  }
+
+ public:
+  vectorIterator<T> begin() { return vectorIterator<T>(_data, true); }
+  vectorIterator<T> end() { return vectorIterator<T>(_data + _size, true); }
+  uint32_t size() { return _size; }
+  uint32_t capacity() { return _capacity; }
+  T* data() { return _data; }
+  //下标访问
+  T& operator[](uint32_t i) {
+    if (i >= _size || i < 0) {
+      ERROR("Out of the boundary")
+      throw("Out of the boundary");
     }
+    return _data[i];
+  }
+  //尾插入
+  uint32_t push_back(T t) {
+    expand();
+    _data[_size] = t;
+    return ++_size;
+  }
+  //尾删除
+  T pop_back() {
+    if (_size == 0) return T();
+    T r = _data[_size - 1];
+    _size--;
+    shrink();
+    return r;
+  }
+
+  //遍历打印
+  void for_each_printf() {
+    for (int i = 0; i < _size; ++i) {
+      std::cout << _data[i] << "\t";
+    }
+  }
 };
 
+}  // namespace alyx
